@@ -1,0 +1,45 @@
+﻿@{
+    ViewData["Title"] = "Panel de Administración";
+}
+
+<h1>Panel de Administración</h1>
+<hr />
+
+<div class="row text-center">
+    <div class="col-md-3">
+        <div class="card shadow-sm bg-primary text-white">
+            <div class="card-body">
+                <h4>Pacientes</h4>
+                <p class="display-6">@ViewBag.PacientesCount</p>
+            </div>
+            <a asp-controller="Pacientes" asp-action="Index" class="card-footer text-white">Ver más</a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm bg-success text-white">
+            <div class="card-body">
+                <h4>Médicos</h4>
+                <p class="display-6">@ViewBag.MedicosCount</p>
+            </div>
+            <a asp-controller="Medicos" asp-action="Index" class="card-footer text-white">Ver más</a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm bg-warning text-dark">
+            <div class="card-body">
+                <h4>Especialidades</h4>
+                <p class="display-6">@ViewBag.EspecialidadesCount</p>
+            </div>
+            <a asp-controller="Especialidades" asp-action="Index" class="card-footer text-dark">Ver más</a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm bg-danger text-white">
+            <div class="card-body">
+                <h4>Citas</h4>
+                <p class="display-6">@ViewBag.CitasCount</p>
+            </div>
+            <a asp-controller="Citas" asp-action="Index" class="card-footer text-white">Ver más</a>
+        </div>
+    </div>
+</div>

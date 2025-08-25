@@ -1,0 +1,43 @@
+@model CitasMedicasWeb.Models.Especialidad
+
+@{
+    ViewData["Title"] = "Editar Especialidad";
+}
+
+<h1>Editar Especialidad</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-floating mb-3">
+                <input asp-for="Nombre" class="form-control" placeholder="Nombre de la especialidad" />
+                <label asp-for="Nombre"></label>
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Descripcion" class="form-control" placeholder="Descripción" />
+                <label asp-for="Descripcion"></label>
+                <span asp-validation-for="Descripcion" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-warning w-100">
+                <i class="bi bi-save"></i> Guardar cambios
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Volver a la lista
+    </a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

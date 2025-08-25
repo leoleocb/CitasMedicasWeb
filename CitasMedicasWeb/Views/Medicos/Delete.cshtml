@@ -1,0 +1,41 @@
+@model CitasMedicasWeb.Models.Medico
+
+@{
+    ViewData["Title"] = "Eliminar Médico";
+}
+
+<h1>Eliminar Médico</h1>
+<hr />
+
+<div class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    ¿Estás seguro que deseas eliminar este médico?
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Nombre Completo</dt>
+            <dd class="col-sm-9 fw-bold">@Model.NombresCompletos</dd>
+
+            <dt class="col-sm-3">CMP</dt>
+            <dd class="col-sm-9">@Model.CMP</dd>
+
+            <dt class="col-sm-3">Especialidad</dt>
+            <dd class="col-sm-9">@Model.Especialidad?.Nombre</dd>
+
+            <dt class="col-sm-3">Email</dt>
+            <dd class="col-sm-9">@Model.Email</dd>
+        </dl>
+    </div>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">
+        <i class="bi bi-trash"></i> Confirmar eliminación
+    </button>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Cancelar
+    </a>
+</form>

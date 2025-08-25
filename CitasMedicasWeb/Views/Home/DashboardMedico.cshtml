@@ -1,0 +1,37 @@
+﻿@model IEnumerable<CitasMedicasWeb.Models.Cita>
+
+@{
+    ViewData["Title"] = "Panel del Médico";
+}
+
+<h1>Mis próximas citas</h1>
+<hr />
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No tienes citas próximas.</div>
+}
+else
+{
+    <table class="table table-striped shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Fecha y hora</th>
+                <th>Paciente</th>
+                <th>Motivo</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model)
+            {
+                <tr>
+                    <td>@c.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@c.Paciente?.Apellidos @c.Paciente?.Nombres</td>
+                    <td>@c.Motivo</td>
+                    <td>@c.Estado</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

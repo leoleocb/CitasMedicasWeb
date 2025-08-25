@@ -1,0 +1,44 @@
+@model CitasMedicasWeb.Models.Especialidad
+
+@{
+    ViewData["Title"] = "Eliminar Especialidad";
+}
+
+<h1>Eliminar Especialidad</h1>
+<hr />
+
+<div class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    ¿Estás seguro que deseas eliminar esta especialidad?
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Nombre</dt>
+            <dd class="col-sm-9 fw-bold">@Model.Nombre</dd>
+
+            <dt class="col-sm-3">Descripción</dt>
+            <dd class="col-sm-9">
+                @if (string.IsNullOrWhiteSpace(Model.Descripcion))
+                {
+                    <span class="text-muted fst-italic">Sin descripción</span>
+                }
+                else
+                {
+                    @Model.Descripcion
+                }
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">
+        <i class="bi bi-trash"></i> Confirmar eliminación
+    </button>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Cancelar
+    </a>
+</form>

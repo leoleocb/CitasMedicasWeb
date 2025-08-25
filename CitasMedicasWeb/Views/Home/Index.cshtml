@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+}
+
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-primary">Sistema de Citas Médicas</h1>
+        <p class="lead text-muted">Agenda tus citas médicas de manera rápida, segura y desde cualquier lugar.</p>
+        <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary btn-lg me-2">
+            <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+        </a>
+        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-secondary btn-lg">
+            <i class="bi bi-person-plus"></i> Registrarse
+        </a>
+    </div>
+
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <i class="bi bi-calendar-check display-4 text-success mb-3"></i>
+                    <h5 class="card-title">Agendamiento Fácil</h5>
+                    <p class="card-text">Reserva tus citas médicas en minutos, sin filas ni llamadas.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <i class="bi bi-shield-check display-4 text-primary mb-3"></i>
+                    <h5 class="card-title">Seguro y Confiable</h5>
+                    <p class="card-text">Tus datos están protegidos y solo accesibles por ti y tu médico.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <i class="bi bi-heart-pulse display-4 text-danger mb-3"></i>
+                    <h5 class="card-title">Atención Personalizada</h5>
+                    <p class="card-text">Accede al historial de tus citas y recibe el mejor seguimiento.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <h4 class="fw-bold">¿Eres nuevo?</h4>
+        <p class="text-muted">Crea tu cuenta y agenda tu primera cita en menos de 5 minutos.</p>
+        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-success btn-lg">
+            <i class="bi bi-person-plus-fill"></i> Crear cuenta
+        </a>
+    </div>
+</div>

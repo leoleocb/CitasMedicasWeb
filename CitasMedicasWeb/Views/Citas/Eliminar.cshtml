@@ -1,0 +1,57 @@
+﻿@model CitasMedicasWeb.Models.Cita
+
+@{
+    var titulo = User.IsInRole("Paciente") ? "Cancelar Cita" : "Eliminar Cita";
+    ViewData["Title"] = titulo;
+}
+
+<h1>@titulo</h1>
+<hr />
+
+<div class="alert @(User.IsInRole("Paciente") ? "alert-warning" : "alert-danger")">
+    <strong>
+        @if (User.IsInRole("Paciente"))
+        {
+            @:¿Estás seguro de que deseas cancelar esta cita?
+        }
+        else
+        {
+            @:¿Estás seguro de que deseas eliminar esta cita?
+        }
+    </strong>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Paciente</dt>
+            <dd class="col-sm-9">@Model.Paciente?.Apellidos @Model.Paciente?.Nombres</dd>
+
+            <dt class="col-sm-3">Médico</dt>
+            <dd class="col-sm-9">@Model.Medico?.NombresCompletos</dd>
+
+            <dt class="col-sm-3">Especialidad</dt>
+            <dd class="col-sm-9">@Model.Medico?.Especialidad?.Nombre</dd>
+
+            <dt class="col-sm-3">Fecha y hora</dt>
+            <dd class="col-sm-9">@Model.FechaHora.ToString("dd/MM/yyyy HH:mm")</dd>
+
+            <dt class="col-sm-3">Motivo</dt>
+            <dd class="col-sm-9">@Model.Motivo</dd>
+
+            <dt class="col-sm-3">Estado</dt>
+            <dd class="col-sm-9">@Model.Estado</dd>
+        </dl>
+    </div>
+</div>
+
+<form asp-action="Eliminar">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn @(User.IsInRole("Paciente") ? "btn-warning" : "btn-danger")">
+        <i class="bi @(User.IsInRole("Paciente") ? "bi-x-circle" : "bi-trash")"></i>
+        @titulo
+    </button>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Volver a la lista
+    </a>
+</form>

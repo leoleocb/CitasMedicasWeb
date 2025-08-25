@@ -1,0 +1,119 @@
+﻿@model CitasMedicasWeb.Models.Cita
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Editar Cita";
+}
+
+<h1>Editar Cita</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Editar" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="form-floating mb-3">
+                    <select asp-for="PacienteId" class="form-control"
+                            asp-items="@(new SelectList(ViewBag.Pacientes, "Id", "Apellidos", Model.PacienteId))"></select>
+                    <label asp-for="PacienteId">Paciente</label>
+                    <span asp-validation-for="PacienteId" class="text-danger"></span>
+                </div>
+            }
+
+            <!-- Especialidad -->
+            <div class="form-floating mb-3">
+                <select id="especialidadSelect" class="form-control">
+                    <option value="">-- Seleccione especialidad --</option>
+                    @foreach (var e in ViewBag.Especialidades)
+                    {
+                        <option value="@e.Id" selected="@(Model.Medico?.EspecialidadId == e.Id)">
+                            @e.Nombre
+                        </option>
+                    }
+                </select>
+                <label>Especialidad</label>
+            </div>
+
+            <!-- Médicos -->
+            <div class="form-floating mb-3">
+                <select asp-for="MedicoId" id="medicoSelect" class="form-control">
+                    <option value="">-- Seleccione médico --</option>
+                    @if (ViewBag.Medicos != null)
+                    {
+                        foreach (var m in ViewBag.Medicos)
+                        {
+                            <option value="@m.Id" selected="@(Model.MedicoId == m.Id)">
+                                @m.NombresCompletos
+                            </option>
+                        }
+                    }
+                </select>
+                <label asp-for="MedicoId">Médico</label>
+                <span asp-validation-for="MedicoId" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="FechaHora" type="datetime-local" class="form-control"
+                       value="@Model.FechaHora.ToString("yyyy-MM-ddTHH:mm")" />
+                <label asp-for="FechaHora"></label>
+                <span asp-validation-for="FechaHora" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Motivo" class="form-control" />
+                <label asp-for="Motivo"></label>
+                <span asp-validation-for="Motivo" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Estado" class="form-control" />
+                <label asp-for="Estado"></label>
+                <span asp-validation-for="Estado" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">
+                <i class="bi bi-save"></i> Guardar cambios
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Volver a la lista
+    </a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Cuando cambia la especialidad, pedimos médicos con AJAX
+        $("#especialidadSelect").change(function () {
+            var especialidadId = $(this).val();
+            var $medicoSelect = $("#medicoSelect");
+
+            $medicoSelect.empty().append($("<option>", {
+                value: "",
+                text: "-- Seleccione médico --"
+            }));
+
+            if (especialidadId) {
+                $.getJSON('/Citas/GetMedicosByEspecialidad',
+                    { especialidadId: especialidadId },
+                    function (data) {
+                        $.each(data, function (i, medico) {
+                            $medicoSelect.append($("<option>", {
+                                value: medico.id,
+                                text: medico.nombresCompletos
+                            }));
+                        });
+                    });
+            }
+        });
+    </script>
+}
