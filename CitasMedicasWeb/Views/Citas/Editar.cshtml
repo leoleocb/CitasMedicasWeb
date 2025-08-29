@@ -56,19 +56,29 @@
                 <span asp-validation-for="MedicoId" class="text-danger"></span>
             </div>
 
+            <!-- Fecha -->
             <div class="form-floating mb-3">
-                <input asp-for="FechaHora" type="datetime-local" class="form-control"
-                       value="@Model.FechaHora.ToString("yyyy-MM-ddTHH:mm")" />
-                <label asp-for="FechaHora"></label>
+                <input id="fechaInput" type="date" class="form-control" value="@Model.FechaHora.ToString("yyyy-MM-dd")" />
+                <label for="fechaInput">Fecha</label>
+            </div>
+
+            <!-- Horas disponibles -->
+            <div class="form-floating mb-3">
+                <select asp-for="FechaHora" id="horaSelect" class="form-control">
+                    <option value="@Model.FechaHora.ToString("yyyy-MM-ddTHH:mm")">@Model.FechaHora.ToString("HH:mm")</option>
+                </select>
+                <label asp-for="FechaHora">Hora disponible</label>
                 <span asp-validation-for="FechaHora" class="text-danger"></span>
             </div>
 
+            <!-- Motivo -->
             <div class="form-floating mb-3">
                 <input asp-for="Motivo" class="form-control" />
                 <label asp-for="Motivo"></label>
                 <span asp-validation-for="Motivo" class="text-danger"></span>
             </div>
 
+            <!-- Estado -->
             <div class="form-floating mb-3">
                 <input asp-for="Estado" class="form-control" />
                 <label asp-for="Estado"></label>
@@ -92,7 +102,7 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script>
-        // Cuando cambia la especialidad, pedimos médicos con AJAX
+        // Cargar médicos al cambiar especialidad
         $("#especialidadSelect").change(function () {
             var especialidadId = $(this).val();
             var $medicoSelect = $("#medicoSelect");
@@ -115,5 +125,40 @@
                     });
             }
         });
+
+        // Cargar horas disponibles al cambiar médico o fecha
+        function cargarHoras() {
+            var medicoId = $("#medicoSelect").val();
+            var fecha = $("#fechaInput").val();
+            var $horaSelect = $("#horaSelect");
+
+            $horaSelect.empty().append($("<option>", {
+                value: "",
+                text: "-- Seleccione hora --"
+            }));
+
+            if (medicoId && fecha) {
+                $.getJSON('/Citas/GetHorariosDisponibles',
+                    { medicoId: medicoId, fecha: fecha },
+                    function (data) {
+                        if (data.length === 0) {
+                            $horaSelect.append($("<option>", {
+                                value: "",
+                                text: "No hay horarios disponibles"
+                            }));
+                        } else {
+                            $.each(data, function (i, hora) {
+                                var fechaHora = fecha + "T" + hora;
+                                $horaSelect.append($("<option>", {
+                                    value: fechaHora,
+                                    text: hora
+                                }));
+                            });
+                        }
+                    });
+            }
+        }
+
+        $("#medicoSelect, #fechaInput").change(cargarHoras);
     </script>
 }

@@ -13,13 +13,14 @@
         <form asp-action="Crear" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+            <!-- Paciente -->
             @if (User.IsInRole("Admin"))
             {
                 <div class="form-floating mb-3">
-                    <select asp-for="PacienteId" class="form-control @(ViewData.ModelState["PacienteId"]?.Errors.Count > 0 ? "is-invalid" : "")"
+                    <select asp-for="PacienteId" class="form-control"
                             asp-items="@(new SelectList(ViewBag.Pacientes, "Id", "Apellidos"))"></select>
-                    <label asp-for="PacienteId"></label>
-                    <span asp-validation-for="PacienteId" class="invalid-feedback"></span>
+                    <label asp-for="PacienteId">Paciente</label>
+                    <span asp-validation-for="PacienteId" class="text-danger"></span>
                 </div>
             }
             else if (User.IsInRole("Paciente"))
@@ -27,6 +28,7 @@
                 <input type="hidden" name="PacienteId" value="@ViewBag.PacienteId" />
             }
 
+            <!-- Especialidad -->
             <div class="form-floating mb-3">
                 <select id="especialidadSelect" class="form-control">
                     <option value="">-- Seleccione especialidad --</option>
@@ -38,26 +40,35 @@
                 <label>Especialidad</label>
             </div>
 
+            <!-- Médicos -->
             <div class="form-floating mb-3">
-                <select asp-for="MedicoId" id="medicoSelect"
-                        class="form-control @(ViewData.ModelState["MedicoId"]?.Errors.Count > 0 ? "is-invalid" : "")">
+                <select asp-for="MedicoId" id="medicoSelect" class="form-control">
                     <option value="">-- Seleccione médico --</option>
                 </select>
-                <label asp-for="MedicoId"></label>
-                <span asp-validation-for="MedicoId" class="invalid-feedback"></span>
+                <label asp-for="MedicoId">Médico</label>
+                <span asp-validation-for="MedicoId" class="text-danger"></span>
             </div>
 
+            <!-- Fecha -->
             <div class="form-floating mb-3">
-                <input asp-for="FechaHora" type="datetime-local"
-                       class="form-control @(ViewData.ModelState["FechaHora"]?.Errors.Count > 0 ? "is-invalid" : "")" />
-                <label asp-for="FechaHora"></label>
-                <span asp-validation-for="FechaHora" class="invalid-feedback"></span>
+                <input id="fechaInput" type="date" class="form-control" />
+                <label for="fechaInput">Fecha</label>
             </div>
 
+            <!-- Horas disponibles -->
             <div class="form-floating mb-3">
-                <input asp-for="Motivo" class="form-control @(ViewData.ModelState["Motivo"]?.Errors.Count > 0 ? "is-invalid" : "")" />
+                <select asp-for="FechaHora" id="horaSelect" class="form-control">
+                    <option value="">-- Seleccione hora --</option>
+                </select>
+                <label asp-for="FechaHora">Hora disponible</label>
+                <span asp-validation-for="FechaHora" class="text-danger"></span>
+            </div>
+
+            <!-- Motivo -->
+            <div class="form-floating mb-3">
+                <input asp-for="Motivo" class="form-control" placeholder="Motivo de la cita" />
                 <label asp-for="Motivo"></label>
-                <span asp-validation-for="Motivo" class="invalid-feedback"></span>
+                <span asp-validation-for="Motivo" class="text-danger"></span>
             </div>
 
             <button type="submit" class="btn btn-primary w-100">
@@ -75,18 +86,66 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
     <script>
+        // Cargar médicos al elegir especialidad
         $("#especialidadSelect").change(function () {
             var especialidadId = $(this).val();
             var $medicoSelect = $("#medicoSelect");
-            $medicoSelect.empty().append($("<option>", { value: "", text: "-- Seleccione médico --" }));
+
+            $medicoSelect.empty().append($("<option>", {
+                value: "",
+                text: "-- Seleccione médico --"
+            }));
+
             if (especialidadId) {
-                $.getJSON('/Citas/GetMedicosByEspecialidad', { especialidadId: especialidadId }, function (data) {
-                    $.each(data, function (i, medico) {
-                        $medicoSelect.append($("<option>", { value: medico.id, text: medico.nombresCompletos }));
+                $.getJSON('/Citas/GetMedicosByEspecialidad',
+                    { especialidadId: especialidadId },
+                    function (data) {
+                        $.each(data, function (i, medico) {
+                            $medicoSelect.append($("<option>", {
+                                value: medico.id,
+                                text: medico.nombresCompletos
+                            }));
+                        });
                     });
-                });
             }
         });
+
+        // Cargar horas disponibles al elegir médico y fecha
+        function cargarHoras() {
+            var medicoId = $("#medicoSelect").val();
+            var fecha = $("#fechaInput").val();
+            var $horaSelect = $("#horaSelect");
+
+            $horaSelect.empty().append($("<option>", {
+                value: "",
+                text: "-- Seleccione hora --"
+            }));
+
+            if (medicoId && fecha) {
+                $.getJSON('/Citas/GetHorariosDisponibles',
+                    { medicoId: medicoId, fecha: fecha },
+                    function (data) {
+                        if (data.length === 0) {
+                            $horaSelect.append($("<option>", {
+                                value: "",
+                                text: "No hay horarios disponibles"
+                            }));
+                        } else {
+                            $.each(data, function (i, hora) {
+                                // Formato: yyyy-MM-ddTHH:mm
+                                var fechaHora = fecha + "T" + hora;
+                                $horaSelect.append($("<option>", {
+                                    value: fechaHora,
+                                    text: hora
+                                }));
+                            });
+                        }
+                    });
+            }
+        }
+
+        $("#medicoSelect, #fechaInput").change(cargarHoras);
     </script>
 }

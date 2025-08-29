@@ -12,6 +12,8 @@ namespace CitasMedicasWeb.Data
         public DbSet<Especialidad> Especialidades => Set<Especialidad>();
         public DbSet<Medico> Medicos => Set<Medico>();
         public DbSet<Cita> Citas => Set<Cita>();
+        
+        public DbSet<HorarioMedico> HorariosMedicos => Set<HorarioMedico>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

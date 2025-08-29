@@ -29,7 +29,7 @@ namespace CitasMedicasWeb.Controllers
 
             var usuario = await _userManager.GetUserAsync(User);
 
-            //PACIENTE SUS CITAS
+            // Paciente → sus citas
             if (User.IsInRole("Paciente"))
             {
                 var paciente = await _ctx.Pacientes.FirstOrDefaultAsync(p => p.Email == usuario.Email);
@@ -41,7 +41,7 @@ namespace CitasMedicasWeb.Controllers
                 else if (ver == "pasadas")
                     q = q.Where(c => c.FechaHora < DateTime.Now);
             }
-            // MEDICO AGENDA DEL DIA
+            // Médico → agenda del día
             else if (User.IsInRole("Medico"))
             {
                 var medico = await _ctx.Medicos.FirstOrDefaultAsync(m => m.Email == usuario.Email);
@@ -49,7 +49,7 @@ namespace CitasMedicasWeb.Controllers
                     q = q.Where(c => c.MedicoId == medico.Id && c.FechaHora.Date == DateTime.Today);
             }
 
-            // Admin FILTROS
+            // Admin → filtros
             if (!string.IsNullOrWhiteSpace(filtroMedico))
                 q = q.Where(c => c.Medico.NombresCompletos.Contains(filtroMedico));
 
@@ -129,6 +129,20 @@ namespace CitasMedicasWeb.Controllers
             if (FechaHora < DateTime.Now)
                 ModelState.AddModelError("FechaHora", "No se pueden agendar citas en el pasado.");
 
+            // Validar que esté dentro del horario del médico
+            var diaSemana = (int)FechaHora.DayOfWeek;
+            if (diaSemana == 0) diaSemana = 7; // Sunday=0 → 7
+
+            var horarioValido = await _ctx.HorariosMedicos.AnyAsync(h =>
+                h.MedicoId == MedicoId &&
+                h.DiaSemana == diaSemana &&
+                h.HoraInicio <= FechaHora.TimeOfDay &&
+                h.HoraFin > FechaHora.TimeOfDay);
+
+            if (!horarioValido)
+                ModelState.AddModelError("FechaHora", "El médico no atiende en ese horario.");
+
+            // Evitar citas duplicadas con el mismo médico en el mismo día
             bool duplicada = await _ctx.Citas.AnyAsync(c =>
                 c.PacienteId == pacienteId &&
                 c.MedicoId == MedicoId &&
@@ -136,7 +150,7 @@ namespace CitasMedicasWeb.Controllers
                 c.Estado != "Cancelada");
 
             if (duplicada)
-                ModelState.AddModelError("FechaHora", "Ya existe una cita con este médico en esa fecha.");
+                ModelState.AddModelError("FechaHora", "Ya tienes una cita con este médico en esa fecha.");
 
             if (string.IsNullOrWhiteSpace(Motivo))
                 ModelState.AddModelError("Motivo", "El motivo es obligatorio.");
@@ -173,6 +187,35 @@ namespace CitasMedicasWeb.Controllers
                 .ToListAsync();
 
             return Json(medicos);
+        }
+
+        // ✅ AJAX: obtener horarios disponibles de un médico en una fecha
+        [HttpGet]
+        public async Task<IActionResult> GetHorariosDisponibles(int medicoId, DateTime fecha)
+        {
+            var diaSemana = (int)fecha.DayOfWeek;
+            if (diaSemana == 0) diaSemana = 7; // domingo=7
+
+            var horarios = await _ctx.HorariosMedicos
+                .Where(h => h.MedicoId == medicoId && h.DiaSemana == diaSemana)
+                .ToListAsync();
+
+            var ocupadas = await _ctx.Citas
+                .Where(c => c.MedicoId == medicoId && c.FechaHora.Date == fecha.Date && c.Estado != "Cancelada")
+                .Select(c => c.FechaHora.TimeOfDay)
+                .ToListAsync();
+
+            var disponibles = new List<string>();
+            foreach (var h in horarios)
+            {
+                for (var hora = h.HoraInicio; hora < h.HoraFin; hora = hora.Add(TimeSpan.FromMinutes(30)))
+                {
+                    if (!ocupadas.Contains(hora))
+                        disponibles.Add(hora.ToString(@"hh\:mm"));
+                }
+            }
+
+            return Json(disponibles);
         }
 
         // GET: /Citas/Detalles/5

@@ -1,0 +1,31 @@
+﻿@model CitasMedicasWeb.Models.HorarioMedico
+@{
+    ViewData["Title"] = "Eliminar Horario Médico";
+}
+
+<h2>Eliminar Horario</h2>
+<hr />
+
+<div class="alert alert-danger">
+    ¿Estás seguro de eliminar este horario?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Médico</dt>
+    <dd class="col-sm-9">@Model.Medico?.NombresCompletos</dd>
+
+    <dt class="col-sm-3">Día</dt>
+    <dd class="col-sm-9">@Model.DiaSemana</dd>
+
+    <dt class="col-sm-3">Inicio</dt>
+    <dd class="col-sm-9">@Model.HoraInicio</dd>
+
+    <dt class="col-sm-3">Fin</dt>
+    <dd class="col-sm-9">@Model.HoraFin</dd>
+</dl>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Confirmar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

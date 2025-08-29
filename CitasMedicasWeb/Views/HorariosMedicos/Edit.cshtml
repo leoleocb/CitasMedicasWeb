@@ -1,0 +1,47 @@
+﻿@model CitasMedicasWeb.Models.HorarioMedico
+@{
+    ViewData["Title"] = "Editar Horario Médico";
+}
+
+<h2>Editar Horario</h2>
+<hr />
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-floating mb-3">
+        <select asp-for="MedicoId" class="form-control" asp-items="ViewBag.MedicoId"></select>
+        <label asp-for="MedicoId"></label>
+        <span asp-validation-for="MedicoId" class="text-danger"></span>
+    </div>
+
+    <div class="form-floating mb-3">
+        <select asp-for="DiaSemana" class="form-control">
+            <option value="1">Lunes</option>
+            <option value="2">Martes</option>
+            <option value="3">Miércoles</option>
+            <option value="4">Jueves</option>
+            <option value="5">Viernes</option>
+            <option value="6">Sábado</option>
+            <option value="7">Domingo</option>
+        </select>
+        <label asp-for="DiaSemana"></label>
+        <span asp-validation-for="DiaSemana" class="text-danger"></span>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input asp-for="HoraInicio" type="time" class="form-control" />
+        <label asp-for="HoraInicio"></label>
+        <span asp-validation-for="HoraInicio" class="text-danger"></span>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input asp-for="HoraFin" type="time" class="form-control" />
+        <label asp-for="HoraFin"></label>
+        <span asp-validation-for="HoraFin" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-warning">Guardar cambios</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
