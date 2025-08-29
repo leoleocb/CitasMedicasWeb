@@ -13,14 +13,13 @@
         <form asp-action="Crear" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            @* Paciente: Admin selecciona / Paciente ya se asigna automáticamente *@
             @if (User.IsInRole("Admin"))
             {
                 <div class="form-floating mb-3">
-                    <select asp-for="PacienteId" class="form-control"
+                    <select asp-for="PacienteId" class="form-control @(ViewData.ModelState["PacienteId"]?.Errors.Count > 0 ? "is-invalid" : "")"
                             asp-items="@(new SelectList(ViewBag.Pacientes, "Id", "Apellidos"))"></select>
-                    <label asp-for="PacienteId">Paciente</label>
-                    <span asp-validation-for="PacienteId" class="text-danger"></span>
+                    <label asp-for="PacienteId"></label>
+                    <span asp-validation-for="PacienteId" class="invalid-feedback"></span>
                 </div>
             }
             else if (User.IsInRole("Paciente"))
@@ -28,7 +27,6 @@
                 <input type="hidden" name="PacienteId" value="@ViewBag.PacienteId" />
             }
 
-            <!-- Especialidad -->
             <div class="form-floating mb-3">
                 <select id="especialidadSelect" class="form-control">
                     <option value="">-- Seleccione especialidad --</option>
@@ -40,25 +38,26 @@
                 <label>Especialidad</label>
             </div>
 
-            <!-- Médicos -->
             <div class="form-floating mb-3">
-                <select asp-for="MedicoId" id="medicoSelect" class="form-control">
+                <select asp-for="MedicoId" id="medicoSelect"
+                        class="form-control @(ViewData.ModelState["MedicoId"]?.Errors.Count > 0 ? "is-invalid" : "")">
                     <option value="">-- Seleccione médico --</option>
                 </select>
-                <label asp-for="MedicoId">Médico</label>
-                <span asp-validation-for="MedicoId" class="text-danger"></span>
+                <label asp-for="MedicoId"></label>
+                <span asp-validation-for="MedicoId" class="invalid-feedback"></span>
             </div>
 
             <div class="form-floating mb-3">
-                <input asp-for="FechaHora" type="datetime-local" class="form-control" />
+                <input asp-for="FechaHora" type="datetime-local"
+                       class="form-control @(ViewData.ModelState["FechaHora"]?.Errors.Count > 0 ? "is-invalid" : "")" />
                 <label asp-for="FechaHora"></label>
-                <span asp-validation-for="FechaHora" class="text-danger"></span>
+                <span asp-validation-for="FechaHora" class="invalid-feedback"></span>
             </div>
 
             <div class="form-floating mb-3">
-                <input asp-for="Motivo" class="form-control" placeholder="Motivo de la cita" />
+                <input asp-for="Motivo" class="form-control @(ViewData.ModelState["Motivo"]?.Errors.Count > 0 ? "is-invalid" : "")" />
                 <label asp-for="Motivo"></label>
-                <span asp-validation-for="Motivo" class="text-danger"></span>
+                <span asp-validation-for="Motivo" class="invalid-feedback"></span>
             </div>
 
             <button type="submit" class="btn btn-primary w-100">
@@ -76,29 +75,17 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-
     <script>
-        // Cuando cambia la especialidad, pedimos médicos con AJAX
         $("#especialidadSelect").change(function () {
             var especialidadId = $(this).val();
             var $medicoSelect = $("#medicoSelect");
-
-            $medicoSelect.empty().append($("<option>", {
-                value: "",
-                text: "-- Seleccione médico --"
-            }));
-
+            $medicoSelect.empty().append($("<option>", { value: "", text: "-- Seleccione médico --" }));
             if (especialidadId) {
-                $.getJSON('/Citas/GetMedicosByEspecialidad',
-                    { especialidadId: especialidadId },
-                    function (data) {
-                        $.each(data, function (i, medico) {
-                            $medicoSelect.append($("<option>", {
-                                value: medico.id,
-                                text: medico.nombresCompletos
-                            }));
-                        });
+                $.getJSON('/Citas/GetMedicosByEspecialidad', { especialidadId: especialidadId }, function (data) {
+                    $.each(data, function (i, medico) {
+                        $medicoSelect.append($("<option>", { value: medico.id, text: medico.nombresCompletos }));
                     });
+                });
             }
         });
     </script>

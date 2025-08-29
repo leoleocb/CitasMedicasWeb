@@ -5,25 +5,53 @@
 
 <h2 class="mb-3">Listado de Citas</h2>
 
+@if (User.IsInRole("Paciente"))
+{
+    <div class="mb-3">
+        <a asp-action="Index" asp-route-ver="proximas" class="btn btn-success btn-sm @(ViewBag.Ver == "proximas" ? "active" : "")">Próximas</a>
+        <a asp-action="Index" asp-route-ver="pasadas" class="btn btn-secondary btn-sm @(ViewBag.Ver == "pasadas" ? "active" : "")">Historial</a>
+    </div>
+}
+
 <form method="get" class="row g-2 align-items-end mb-3">
-    <div class="col-sm-4 col-md-3">
-        <label class="form-label mb-1">Médico</label>
-        <input name="filtroMedico" value="@ViewBag.FiltroMedico" class="form-control" placeholder="Nombre médico..." />
-    </div>
-    <div class="col-sm-4 col-md-3">
-        <label class="form-label mb-1">Paciente</label>
-        <input name="filtroPaciente" value="@ViewBag.FiltroPaciente" class="form-control" placeholder="Nombre paciente..." />
-    </div>
-    <div class="col-sm-4 col-md-3">
-        <label class="form-label mb-1">Fecha</label>
-        <input type="date" name="fecha" value="@ViewBag.Fecha" class="form-control" />
-    </div>
-    <div class="col-sm-12 col-md-3 text-end">
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="col-sm-3">
+            <label class="form-label">Médico</label>
+            <input name="filtroMedico" value="@ViewBag.FiltroMedico" class="form-control" />
+        </div>
+        <div class="col-sm-3">
+            <label class="form-label">Paciente</label>
+            <input name="filtroPaciente" value="@ViewBag.FiltroPaciente" class="form-control" />
+        </div>
+        <div class="col-sm-3">
+            <label class="form-label">Especialidad</label>
+            <input name="filtroEspecialidad" value="@ViewBag.FiltroEspecialidad" class="form-control" />
+        </div>
+        <div class="col-sm-3">
+            <label class="form-label">Estado</label>
+            <select name="filtroEstado" class="form-control">
+                <option value="">-- Todos --</option>
+                <option value="Pendiente" selected="@(ViewBag.FiltroEstado == "Pendiente")">Pendiente</option>
+                <option value="Confirmada" selected="@(ViewBag.FiltroEstado == "Confirmada")">Confirmada</option>
+                <option value="Cancelada" selected="@(ViewBag.FiltroEstado == "Cancelada")">Cancelada</option>
+            </select>
+        </div>
+        <div class="col-sm-3">
+            <label class="form-label">Fecha inicio</label>
+            <input type="date" name="fechaInicio" value="@ViewBag.FechaInicio" class="form-control" />
+        </div>
+        <div class="col-sm-3">
+            <label class="form-label">Fecha fin</label>
+            <input type="date" name="fechaFin" value="@ViewBag.FechaFin" class="form-control" />
+        </div>
+    }
+    <div class="col-sm-3 text-end">
         <button class="btn btn-outline-secondary me-2" type="submit">Buscar</button>
         <a asp-action="Index" class="btn btn-link">Limpiar</a>
         @if (User.IsInRole("Admin") || User.IsInRole("Paciente"))
         {
-            <a asp-action="Crear" class="btn btn-primary float-end">Agendar cita</a>
+            <a asp-action="Crear" class="btn btn-primary">Agendar cita</a>
         }
     </div>
 </form>

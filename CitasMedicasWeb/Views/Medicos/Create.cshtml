@@ -1,7 +1,6 @@
 @model CitasMedicasWeb.Models.Medico
-
 @{
-    ViewData["Title"] = "Crear Médico";
+    ViewData["Title"] = "Registrar Médico";
 }
 
 <h1>Registrar Médico</h1>
@@ -13,38 +12,33 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-floating mb-3">
-                <input asp-for="NombresCompletos" class="form-control" placeholder="Nombres completos" />
+                <input asp-for="NombresCompletos" class="form-control @(ViewData.ModelState["NombresCompletos"]?.Errors.Count > 0 ? "is-invalid" : "")" />
                 <label asp-for="NombresCompletos"></label>
-                <span asp-validation-for="NombresCompletos" class="text-danger"></span>
+                <span asp-validation-for="NombresCompletos" class="invalid-feedback"></span>
             </div>
 
             <div class="form-floating mb-3">
-                <input asp-for="CMP" class="form-control" placeholder="CMP" />
+                <input asp-for="CMP" class="form-control @(ViewData.ModelState["CMP"]?.Errors.Count > 0 ? "is-invalid" : "")" />
                 <label asp-for="CMP"></label>
-                <span asp-validation-for="CMP" class="text-danger"></span>
+                <span asp-validation-for="CMP" class="invalid-feedback"></span>
             </div>
 
             <div class="form-floating mb-3">
-                <input asp-for="Email" class="form-control" placeholder="Correo electrónico" />
+                <input asp-for="Email" class="form-control @(ViewData.ModelState["Email"]?.Errors.Count > 0 ? "is-invalid" : "")" />
                 <label asp-for="Email"></label>
-                <span asp-validation-for="Email" class="text-danger"></span>
+                <span asp-validation-for="Email" class="invalid-feedback"></span>
             </div>
 
             <div class="form-floating mb-3">
-                <select asp-for="EspecialidadId" class="form-control" asp-items="ViewBag.EspecialidadId"></select>
+                <select asp-for="EspecialidadId" class="form-control @(ViewData.ModelState["EspecialidadId"]?.Errors.Count > 0 ? "is-invalid" : "")"
+                        asp-items="ViewBag.EspecialidadId"></select>
                 <label asp-for="EspecialidadId"></label>
-                <span asp-validation-for="EspecialidadId" class="text-danger"></span>
+                <span asp-validation-for="EspecialidadId" class="invalid-feedback"></span>
             </div>
 
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Registrar</button>
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-check-circle"></i> Registrar
+            </button>
         </form>
     </div>
 </div>
-
-<div class="mt-3">
-    <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
-</div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}

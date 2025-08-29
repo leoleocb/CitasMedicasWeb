@@ -32,21 +32,6 @@ namespace CitasMedicasWeb.Controllers
             return View(paciente);
         }
 
-        //// GET: Pacientes/Create
-        //public IActionResult Create() => View();
-
-        //// POST: Pacientes/Create
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("Id,Nombres,Apellidos,Documento,Telefono,Email,FechaNacimiento")] Paciente paciente)
-        //{
-        //    if (!ModelState.IsValid) return View(paciente);
-
-        //    _context.Add(paciente);
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
-
         // GET: Pacientes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -64,6 +49,13 @@ namespace CitasMedicasWeb.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("Id,Nombres,Apellidos,Documento,Telefono,Email,FechaNacimiento")] Paciente paciente)
         {
             if (id != paciente.Id) return NotFound();
+
+            // Validar duplicados
+            if (await _context.Pacientes.AnyAsync(p => p.Documento == paciente.Documento && p.Id != paciente.Id))
+                ModelState.AddModelError("Documento", "El documento ya está registrado.");
+
+            if (await _context.Pacientes.AnyAsync(p => p.Email == paciente.Email && p.Id != paciente.Id))
+                ModelState.AddModelError("Email", "El correo ya está registrado.");
 
             if (!ModelState.IsValid) return View(paciente);
 

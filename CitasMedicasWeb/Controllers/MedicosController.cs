@@ -52,6 +52,13 @@ namespace CitasMedicasWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("NombresCompletos,CMP,Email,EspecialidadId")] Medico medico)
         {
+            // Validar duplicados
+            if (await _context.Medicos.AnyAsync(m => m.CMP == medico.CMP))
+                ModelState.AddModelError("CMP", "El CMP ya está registrado.");
+
+            if (await _context.Medicos.AnyAsync(m => m.Email == medico.Email))
+                ModelState.AddModelError("Email", "El correo ya está registrado.");
+
             if (!ModelState.IsValid)
             {
                 ViewData["EspecialidadId"] = new SelectList(_context.Especialidades, "Id", "Nombre", medico.EspecialidadId);
@@ -109,6 +116,13 @@ namespace CitasMedicasWeb.Controllers
         {
             if (id != medico.Id) return NotFound();
 
+            // Validar duplicados
+            if (await _context.Medicos.AnyAsync(m => m.CMP == medico.CMP && m.Id != medico.Id))
+                ModelState.AddModelError("CMP", "El CMP ya está registrado por otro médico.");
+
+            if (await _context.Medicos.AnyAsync(m => m.Email == medico.Email && m.Id != medico.Id))
+                ModelState.AddModelError("Email", "El correo ya está registrado por otro médico.");
+
             if (!ModelState.IsValid)
             {
                 ViewData["EspecialidadId"] = new SelectList(_context.Especialidades, "Id", "Nombre", medico.EspecialidadId);
@@ -117,18 +131,15 @@ namespace CitasMedicasWeb.Controllers
 
             try
             {
-                // 🔹 Actualizar tabla Medicos
                 _context.Update(medico);
                 await _context.SaveChangesAsync();
 
-                // 🔹 Buscar usuario Identity asociado
                 var user = await _userManager.FindByEmailAsync(medico.Email);
                 if (user != null)
                 {
                     user.Email = medico.Email;
                     user.UserName = medico.Email;
                     user.NombreMostrado = medico.NombresCompletos;
-
                     await _userManager.UpdateAsync(user);
                 }
             }
@@ -164,12 +175,9 @@ namespace CitasMedicasWeb.Controllers
             var medico = await _context.Medicos.FindAsync(id);
             if (medico != null)
             {
-                // 🔹 Eliminar también el usuario Identity
                 var user = await _userManager.FindByEmailAsync(medico.Email);
                 if (user != null)
-                {
                     await _userManager.DeleteAsync(user);
-                }
 
                 _context.Medicos.Remove(medico);
                 await _context.SaveChangesAsync();

@@ -1,11 +1,10 @@
 ﻿@model IEnumerable<CitasMedicasWeb.Models.Cita>
 
 @{
-    ViewData["Title"] = "Mi Panel";
+    ViewData["Title"] = "Panel del Paciente";
 }
 
-<h1>Mis próximas citas</h1>
-<hr />
+<h1 class="mb-4">Mis Próximas Citas</h1>
 
 <p>
     <a asp-controller="Citas" asp-action="Crear" class="btn btn-primary">
@@ -19,10 +18,11 @@
 }
 else
 {
-    <table class="table table-striped shadow-sm">
+    <table class="table table-hover shadow-sm">
         <thead class="table-dark">
             <tr>
-                <th>Fecha y hora</th>
+                <th>Fecha</th>
+                <th>Hora</th>
                 <th>Médico</th>
                 <th>Especialidad</th>
                 <th>Motivo</th>
@@ -33,11 +33,29 @@ else
             @foreach (var c in Model)
             {
                 <tr>
-                    <td>@c.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@c.FechaHora.ToString("dd/MM/yyyy")</td>
+                    <td>@c.FechaHora.ToString("HH:mm")</td>
                     <td>@c.Medico?.NombresCompletos</td>
                     <td>@c.Medico?.Especialidad?.Nombre</td>
                     <td>@c.Motivo</td>
-                    <td>@c.Estado</td>
+                    <td>
+                        @if (c.Estado == "Pendiente")
+                        {
+                            <span class="badge bg-warning text-dark">Pendiente</span>
+                        }
+                        else if (c.Estado == "Confirmada")
+                        {
+                            <span class="badge bg-success">Confirmada</span>
+                        }
+                        else if (c.Estado == "Cancelada")
+                        {
+                            <span class="badge bg-danger">Cancelada</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@c.Estado</span>
+                        }
+                    </td>
                 </tr>
             }
         </tbody>

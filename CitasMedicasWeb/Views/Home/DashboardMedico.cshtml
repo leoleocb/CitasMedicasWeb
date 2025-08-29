@@ -4,19 +4,18 @@
     ViewData["Title"] = "Panel del Médico";
 }
 
-<h1>Mis próximas citas</h1>
-<hr />
+<h1 class="mb-4">Mis Citas de Hoy</h1>
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info">No tienes citas próximas.</div>
+    <div class="alert alert-info">No tienes citas para hoy.</div>
 }
 else
 {
-    <table class="table table-striped shadow-sm">
+    <table class="table table-hover shadow-sm">
         <thead class="table-dark">
             <tr>
-                <th>Fecha y hora</th>
+                <th>Hora</th>
                 <th>Paciente</th>
                 <th>Motivo</th>
                 <th>Estado</th>
@@ -26,10 +25,27 @@ else
             @foreach (var c in Model)
             {
                 <tr>
-                    <td>@c.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@c.FechaHora.ToString("HH:mm")</td>
                     <td>@c.Paciente?.Apellidos @c.Paciente?.Nombres</td>
                     <td>@c.Motivo</td>
-                    <td>@c.Estado</td>
+                    <td>
+                        @if (c.Estado == "Pendiente")
+                        {
+                            <span class="badge bg-warning text-dark">Pendiente</span>
+                        }
+                        else if (c.Estado == "Confirmada")
+                        {
+                            <span class="badge bg-success">Confirmada</span>
+                        }
+                        else if (c.Estado == "Cancelada")
+                        {
+                            <span class="badge bg-danger">Cancelada</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@c.Estado</span>
+                        }
+                    </td>
                 </tr>
             }
         </tbody>

@@ -20,7 +20,7 @@ namespace CitasMedicasWeb.Controllers
         }
 
         // GET: /Citas
-        public async Task<IActionResult> Index(string? filtroMedico, string? filtroPaciente, DateTime? fecha)
+        public async Task<IActionResult> Index(string? filtroMedico, string? filtroPaciente, string? filtroEspecialidad, DateTime? fechaInicio, DateTime? fechaFin, string? filtroEstado, string? ver)
         {
             var q = _ctx.Citas
                 .Include(c => c.Paciente)
@@ -29,19 +29,27 @@ namespace CitasMedicasWeb.Controllers
 
             var usuario = await _userManager.GetUserAsync(User);
 
+            //PACIENTE SUS CITAS
             if (User.IsInRole("Paciente"))
             {
                 var paciente = await _ctx.Pacientes.FirstOrDefaultAsync(p => p.Email == usuario.Email);
                 if (paciente != null)
                     q = q.Where(c => c.PacienteId == paciente.Id);
+
+                if (ver == "proximas")
+                    q = q.Where(c => c.FechaHora >= DateTime.Now);
+                else if (ver == "pasadas")
+                    q = q.Where(c => c.FechaHora < DateTime.Now);
             }
+            // MEDICO AGENDA DEL DIA
             else if (User.IsInRole("Medico"))
             {
                 var medico = await _ctx.Medicos.FirstOrDefaultAsync(m => m.Email == usuario.Email);
                 if (medico != null)
-                    q = q.Where(c => c.MedicoId == medico.Id);
+                    q = q.Where(c => c.MedicoId == medico.Id && c.FechaHora.Date == DateTime.Today);
             }
 
+            // Admin FILTROS
             if (!string.IsNullOrWhiteSpace(filtroMedico))
                 q = q.Where(c => c.Medico.NombresCompletos.Contains(filtroMedico));
 
@@ -49,14 +57,27 @@ namespace CitasMedicasWeb.Controllers
                 q = q.Where(c => c.Paciente.Nombres.Contains(filtroPaciente)
                               || c.Paciente.Apellidos.Contains(filtroPaciente));
 
-            if (fecha.HasValue)
-                q = q.Where(c => c.FechaHora.Date == fecha.Value.Date);
+            if (!string.IsNullOrWhiteSpace(filtroEspecialidad))
+                q = q.Where(c => c.Medico.Especialidad.Nombre.Contains(filtroEspecialidad));
+
+            if (fechaInicio.HasValue)
+                q = q.Where(c => c.FechaHora >= fechaInicio.Value);
+
+            if (fechaFin.HasValue)
+                q = q.Where(c => c.FechaHora <= fechaFin.Value);
+
+            if (!string.IsNullOrWhiteSpace(filtroEstado))
+                q = q.Where(c => c.Estado == filtroEstado);
 
             var lista = await q.OrderBy(c => c.FechaHora).ToListAsync();
 
             ViewBag.FiltroMedico = filtroMedico;
             ViewBag.FiltroPaciente = filtroPaciente;
-            ViewBag.Fecha = fecha?.ToString("yyyy-MM-dd");
+            ViewBag.FiltroEspecialidad = filtroEspecialidad;
+            ViewBag.FechaInicio = fechaInicio?.ToString("yyyy-MM-dd");
+            ViewBag.FechaFin = fechaFin?.ToString("yyyy-MM-dd");
+            ViewBag.FiltroEstado = filtroEstado;
+            ViewBag.Ver = ver;
 
             return View(lista);
         }
@@ -77,12 +98,7 @@ namespace CitasMedicasWeb.Controllers
                     ViewBag.PacienteId = paciente.Id;
             }
 
-            // Lista de especialidades para el combo
-            ViewBag.Especialidades = await _ctx.Especialidades
-                                              .OrderBy(e => e.Nombre)
-                                              .ToListAsync();
-
-            // Inicialmente sin médicos
+            ViewBag.Especialidades = await _ctx.Especialidades.OrderBy(e => e.Nombre).ToListAsync();
             ViewBag.Medicos = new List<Medico>();
 
             return View();
@@ -101,7 +117,6 @@ namespace CitasMedicasWeb.Controllers
                 var usuario = await _userManager.GetUserAsync(User);
                 var paciente = await _ctx.Pacientes.FirstOrDefaultAsync(p => p.Email == usuario.Email);
                 if (paciente == null) return Unauthorized();
-
                 pacienteId = paciente.Id;
             }
             else if (User.IsInRole("Admin"))
@@ -110,15 +125,21 @@ namespace CitasMedicasWeb.Controllers
                     pacienteId = idForm;
             }
 
-            bool ocupado = await _ctx.Citas.AnyAsync(c =>
+            // Validaciones
+            if (FechaHora < DateTime.Now)
+                ModelState.AddModelError("FechaHora", "No se pueden agendar citas en el pasado.");
+
+            bool duplicada = await _ctx.Citas.AnyAsync(c =>
+                c.PacienteId == pacienteId &&
                 c.MedicoId == MedicoId &&
-                c.FechaHora == FechaHora &&
+                c.FechaHora.Date == FechaHora.Date &&
                 c.Estado != "Cancelada");
 
-            if (ocupado)
-            {
-                ModelState.AddModelError(nameof(FechaHora), "El médico ya tiene una cita en ese horario.");
-            }
+            if (duplicada)
+                ModelState.AddModelError("FechaHora", "Ya existe una cita con este médico en esa fecha.");
+
+            if (string.IsNullOrWhiteSpace(Motivo))
+                ModelState.AddModelError("Motivo", "El motivo es obligatorio.");
 
             if (!ModelState.IsValid)
             {
@@ -134,7 +155,7 @@ namespace CitasMedicasWeb.Controllers
                 PacienteId = pacienteId,
                 MedicoId = MedicoId,
                 FechaHora = FechaHora,
-                Motivo = Motivo,
+                Motivo = Motivo!,
                 Estado = "Pendiente"
             });
 
@@ -211,9 +232,7 @@ namespace CitasMedicasWeb.Controllers
                 c.Estado != "Cancelada");
 
             if (ocupado)
-            {
                 ModelState.AddModelError(nameof(cita.FechaHora), "El médico ya tiene una cita en ese horario.");
-            }
 
             if (!ModelState.IsValid)
             {
