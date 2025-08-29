@@ -32,20 +32,20 @@ namespace CitasMedicasWeb.Controllers
             return View(paciente);
         }
 
-        // GET: Pacientes/Create
-        public IActionResult Create() => View();
+        //// GET: Pacientes/Create
+        //public IActionResult Create() => View();
 
-        // POST: Pacientes/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nombres,Apellidos,Documento,Telefono,Email,FechaNacimiento")] Paciente paciente)
-        {
-            if (!ModelState.IsValid) return View(paciente);
+        //// POST: Pacientes/Create
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create([Bind("Id,Nombres,Apellidos,Documento,Telefono,Email,FechaNacimiento")] Paciente paciente)
+        //{
+        //    if (!ModelState.IsValid) return View(paciente);
 
-            _context.Add(paciente);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+        //    _context.Add(paciente);
+        //    await _context.SaveChangesAsync();
+        //    return RedirectToAction(nameof(Index));
+        //}
 
         // GET: Pacientes/Edit/5
         public async Task<IActionResult> Edit(int? id)
